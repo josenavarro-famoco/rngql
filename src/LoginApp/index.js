@@ -1,17 +1,9 @@
 import React, { Component, PropTypes } from 'react';
-import { Text, View, Button, AsyncStorage, ActivityIndicator, TextInput } from 'react-native';
-import { graphql, ApolloProvider } from 'react-apollo';
+import { View, Button, ActivityIndicator, TextInput, StyleSheet } from 'react-native';
+import { graphql } from 'react-apollo';
 import { LOGIN_MUTATION } from '../constants/mutations';
 import { TOKEN_KEY } from '../constants';
 import { saveItem } from '../utils';
-
-const styles = {
-  outer: { paddingTop: 32, paddingLeft: 10, paddingRight: 10 },
-  wrapper: { height: 40, marginBottom: 15, flex: 1, flexDirection: 'row' },
-  header: { fontSize: 20 },
-  subtextWrapper: { flex: 1, flexDirection: 'row' },
-  votes: { color: '#999' },
-}
 
 class LoginApp extends Component {
   constructor(props) {
@@ -25,7 +17,7 @@ class LoginApp extends Component {
   }
 
   onClick = () => {
-    this.setState({ loading: true, error: undefined })
+    this.setState({ loading: true, error: undefined });
     this.props.mutate({
       variables: {
         username: this.state.username,
@@ -37,22 +29,25 @@ class LoginApp extends Component {
     }).catch((error) => {
       // console.error('there was an error sending the query', error);
       this.setState({ loading: false, error: error.graphQLErrors[0].message })
-    })
+    });
   }
 
   render() {
     return(
-      <View style={styles.outer}>
+      <View style={styles.container}>
         {this.state.loading && <ActivityIndicator animating size="large" />}
         {this.state.error && <Text>{this.state.error}</Text>}
         <TextInput
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+          style={styles.input}
+          keyboardType="email-address"
+          placeholder="Username"
           onChangeText={(username) => this.setState({username})}
           value={this.state.username}
         />
         <TextInput
           secureTextEntry
-          style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+          style={styles.input}
+          placeholder="Password"
           onChangeText={(password) => this.setState({password})}
           value={this.state.password}
         />
@@ -67,6 +62,18 @@ class LoginApp extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  input: {
+    height: 40,
+    marginBottom: 16,
+  },
+});
 
 LoginApp.propTypes = {
   mutate: PropTypes.func.isRequired,
