@@ -1,47 +1,26 @@
 import React, { Component, PropTypes } from 'react';
-import { Text, View, Button, ActivityIndicator, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import { graphql } from 'react-apollo';
 import { METRICS } from '../constants/queries';
+import CircularGraph from './CircularGraph';
 
 class Metrics extends Component {
   render() {
-    if (this.props.data.loading) {
-      return <ActivityIndicator animating size="large" />;
+    const organizationMetrics = {
+      devices_in_repair_count: 23,
+      devices_in_stock_count: 74,
+      devices_in_the_field_count: 50,
+      devices_count: 147,
     }
+
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Metrics</Text>
-        <Text>Devices: {this.props.data.organizationMetrics.devices_count}</Text>
-        <Text>Devices Synced: {this.props.data.organizationMetrics.devices_synced_count}</Text>
-        <Text>Devices Not Synced: {this.props.data.organizationMetrics.devices_not_synced_count}</Text>
-        <Text>Devices Never Synced: {this.props.data.organizationMetrics.devices_never_synced_count}</Text>
-        <Text>Devices In the field: {this.props.data.organizationMetrics.devices_in_the_field_count}</Text>
-        <Text>Devices In Stock: {this.props.data.organizationMetrics.devices_in_stock_count}</Text>
-        <Text>Devices In Repair: {this.props.data.organizationMetrics.devices_in_repair_count}</Text>
-      </View>
+      <ScrollView>
+        <CircularGraph number={organizationMetrics.devices_in_the_field_count} total={organizationMetrics.devices_count} label="In the field" color="Blue" />
+        <CircularGraph number={organizationMetrics.devices_in_stock_count} total={organizationMetrics.devices_count} label="In stock" color="Green" />
+        <CircularGraph number={organizationMetrics.devices_in_repair_count} total={organizationMetrics.devices_count} label="In repair" color="Red" />
+      </ScrollView>
     );
   }
 }
 
-const styles = {
-  container: {
-    flex: 1,
-    borderColor: 'red',
-    borderWidth: 1
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    padding: 8,
-    paddingBottom: 16
-  }
-}
-const withData = graphql(METRICS, {
-  options: ({ organizationId }) => ({
-    variables: {
-      organizationId
-    }
-  })
-});
-
-export default withData(Metrics);
+export default Metrics;

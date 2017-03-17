@@ -21,7 +21,7 @@ export default class extends Component {
     };
 
     const networkInterface = createNetworkInterface({
-      uri: 'http://192.168.1.12:8080/graphql',
+      uri: 'http://10.111.4.12:8080/graphql',
       opts: {
         credentials: 'same-origin',
       },

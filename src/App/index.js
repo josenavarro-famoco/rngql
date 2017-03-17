@@ -1,9 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import { Text, ScrollView, Button, DrawerLayoutAndroid, ActivityIndicator, Picker } from 'react-native';
+import { Text, View, ScrollView, Button, DrawerLayoutAndroid, ActivityIndicator, Picker } from 'react-native';
 import { graphql } from 'react-apollo';
 import { ORGANIZATIONS } from '../constants/queries';
-import { removeItem } from '../utils';
-import { TOKEN_KEY } from '../constants';
+import { saveItem, removeItem, getItem } from '../utils';
+import { TOKEN_KEY, ORGANIZATION_KEY } from '../constants';
+import { Toolbar } from 'react-native-material-design';
 
 import DrawerView from './DrawerView';
 import Metrics from './metrics';
@@ -16,13 +17,14 @@ class App extends Component {
     this.state = {
       ready: false,
       selectedOrganization: -1,
+      title: 'Metrics'
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.data.loading && this.props.data.loading) {
-      this.setState({ ready: true });
-    }
+    // if (!nextProps.data.loading && this.props.data.loading) {
+    //   this.setState({ ready: true });
+    // }
   }
 
   onLogout = () => {
@@ -36,38 +38,46 @@ class App extends Component {
     }
   }
 
+  onSelectedOrganization = (organizationId) => {
+    saveItem(ORGANIZATION_KEY, organizationId);
+    this.setState({ selectedOrganization: organizationId })
+  }
+
   render() {
+    const currentUser = { username: 'd', email: 's'}
+    const organizations = [
+      {
+        id: 1,
+        name: 1,
+      }
+    ];
     return (
       <DrawerLayoutAndroid
         drawerWidth={300}
         drawerPosition={DrawerLayoutAndroid.positions.Left}
-        renderNavigationView={() => <DrawerView onLogout={this.onLogout} user={this.props.data.currentUser} />}
+        renderNavigationView={() => <DrawerView onLogout={this.onLogout} user={currentUser} />}
         ref={(drawer) => this.drawer = drawer}
       >
-        <Icon.ToolbarAndroid title="Home" navIconName="menu" style={styles.toolbar} onIconClicked={this.onIconClicked} />
-        <ScrollView style={styles.outer}>
-          {this.props.data.loading && <ActivityIndicator animating size="large" />}
-          {this.state.ready && !this.props.data.loading && !this.props.data.error &&
-            <Picker
-              selectedValue={this.state.selectedOrganization}
-              onValueChange={(value) => this.setState({ selectedOrganization: value })}
-            >
-              {this.props.data.organizations.map(organization => <Picker.Item key={`picker-org-${organization.id}`} label={organization.name} value={organization.id} />)}
-            </Picker>
-          }
-          {this.state.selectedOrganization && this.state.selectedOrganization > 0 ? <Metrics organizationId={this.state.selectedOrganization} /> : <Text>Select an organization</Text>}
-        </ScrollView>
+        <View style={styles.outer}>
+          <Toolbar title={this.state.title} icon="menu" onIconPress={this.onIconClicked} />
+          <View style={styles.content}>
+            <Metrics organizationId={this.state.selectedOrganization} />
+          </View>
+        </View>
       </DrawerLayoutAndroid>
     );
   }
 }
 
 const styles = {
-  outer: { flex: 1, padding: 10 },
-  toolbar: {
-    backgroundColor: '#e0e0e0',
-    height: 56,
+  outer: {
+    flex: 1,
+    backgroundColor: '#e9e9e9',
+  },
+  content: {
+    flex: 1,
+    marginTop: 56,
   },
 }
 
-export default graphql(ORGANIZATIONS)(App);
+export default App;
